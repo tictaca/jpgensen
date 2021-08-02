@@ -13,24 +13,29 @@ export default (props: Props) => {
 	} else {
 		let matchedNum = info.condition.findIndex(val => amount < val.boundary)
 		if(matchedNum == -1){
-			matchedNum = info.condition.length-1
+			matchedNum = info.condition[0].boundary >= amount ? 0 : info.condition.length-1
 		}
 		const matched = info.condition[matchedNum]
 
 		let amountBase = 0
 		let rate = null
 		let prevBoundary = 0
+
 		if(kou){
 			const fuyouHandling = fuyou >= 7 ? 7 : fuyou
-			amountBase = matched.fuyou.amount[fuyouHandling]
-			rate = matched.fuyou.rate
-			prevBoundary = info.condition[matchedNum-1].boundary
+			amountBase = matched.kou.amount[fuyouHandling]
+			rate = matched.kou.rate
+			if(rate){
+				prevBoundary = matchedNum > 0 ? info.condition[matchedNum-1].boundary : null
+			}
 		} else {
 			amountBase = matched.otsu.amount
 			rate = matched.otsu.rate
-			let num = matchedNum
-			while(info.condition[num].otsu.amount == matched.otsu.amount) num--
-			prevBoundary = info.condition[num].boundary
+			if(rate){
+				let num = matchedNum
+				while(info.condition[num].otsu.amount == matched.otsu.amount) num--
+				prevBoundary = info.condition[num].boundary
+			}
 		}
 		if(!rate){
 			return amountBase

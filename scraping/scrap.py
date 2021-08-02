@@ -3,6 +3,7 @@ from xlutils.styles import Styles
 import re
 import pprint
 import json
+import textwrap
 
 wb = xlrd.open_workbook('./src/03_01-07.xls', formatting_info=True)
 ws = wb.sheet_by_index(0)
@@ -60,10 +61,11 @@ for i in range(start_row, len(ws.col_values(0))):
                         print('bottomRateが取得できませんでした')
                 else:
                     amount_info.append({
+                        "from": int(row_values[0]),
                         "boundary": int(row_values[1]),
-                        "fuyou": {
+                        "kou": {
                             "rate": None,
-                            "amount": [int(x) for x in row_values[3:8]]
+                            "amount": [int(x) for x in row_values[2:10]]
                         },
                         "otsu": {
                             "rate": None,
@@ -75,9 +77,10 @@ for i in range(start_row, len(ws.col_values(0))):
                 #1列目:金額、2列目: 結合されている、3列目〜最後の前の列：少数の行を情報の開始業とみなす
                 if(re.search('^\s*[\d,]+円\s*$', row_values[0]) != None and row_values[1] == '' and all(type(x) in [float] for x in row_values[2:len(row_values)-1])):
                     sum = {
+                        "boundary": None,
                         "from": int(re.sub('円|,', '', row_values[0])),
                         "kou": {
-                            'amount': [int(x) for x in row_values[2:8]]
+                            'amount': [int(x) for x in row_values[2:10]]
                         },
                         "otsu": {
                             'amount': int(row_values[-1]) if row_values[-1] != '' else ''
@@ -107,7 +110,6 @@ for i in range(start_row, len(ws.col_values(0))):
 for i in range(len(condiiton_info)):
     cur_info = condiiton_info[i]
     cur_info['boundary'] = condiiton_info[i+1]['from'] if i < len(condiiton_info)-1 else None
-    cur_info.pop('from')
     if(not 'amount' in cur_info['otsu'] or cur_info['otsu']['amount'] == ''):
         j = 1
         while(i-j > 0 and (not 'amount' in condiiton_info[i-j]['otsu'] or condiiton_info[i-j]['otsu']['amount'] == '' )):
@@ -116,6 +118,45 @@ for i in range(len(condiiton_info)):
         cur_info['otsu']['amount'] = condiiton_info[i-j]['otsu']['amount']
         cur_info['otsu']['rate'] = condiiton_info[i-j]['otsu']['rate']
 summary['condition'] = [* amount_info, * condiiton_info]
-pprint.pprint(summary)
+
 with open('dist/summary.json', 'w') as f:
     json.dump(summary, f, indent=4)
+
+#テストの作成
+test_text = ''
+for index, condition in enumerate(summary['condition']):
+    amounts = [* condition['kou']['amount'], condition['otsu']['amount']]
+    for i in range(len(amounts)):
+        is_kou = i != len(amounts)-1
+        rate = condition['kou' if is_kou else 'otsu']['rate']
+        amount = condition['from']+1
+        amountBase = condition['from']
+        if(not is_kou and rate != None):
+            j = 0
+            while(summary['condition'][index-j]['otsu']['amount'] == condition['otsu']['amount']): j = j+1
+            amountBase = summary['condition'][index-j]['boundary']
+        var = {
+            'name': f"{condition['boundary']} { 'kou' if is_kou else 'otsu' } { i if is_kou else 0 }",
+            'amount': amount,
+            'answer': amounts[i] if rate == None else f"{ amounts[i] }+Math.floor(({ amount } - { amountBase })*{ rate }*1/100)",
+            'kou': 'true' if is_kou else 'false',
+            'fuyou': i if is_kou else 0
+        }
+
+        test_text += textwrap.dedent("""
+            test("{name}", () => {{
+                const options = {{
+                    kou: {kou},
+                    fuyou: {fuyou},
+                    amount: {amount}
+                }}
+                expect(calc(options)).toBe({answer})
+            }})
+        """).format(name=f"{var['name']}-{i}", amount=var['amount'], answer=var['answer'], kou=var['kou'], fuyou=var['fuyou'])
+
+with open('src/format.txt', 'r') as f:
+    head_text = f.read()
+
+with open('../fromScrap.test.ts', 'w') as f:
+    f.write(f'{head_text}\n{test_text}')
+
