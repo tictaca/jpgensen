@@ -1,2 +1,5 @@
 node_modules
 *.swp
+scraping/src/*.xls
+scraping/dist/*
+dist/*
