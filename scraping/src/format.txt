@@ -1,2 +1,2 @@
-import calc from './'
+import calc from '../src/'
 

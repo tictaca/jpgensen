@@ -1,15 +1,25 @@
 {
-  "name": "gensen",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "jpgensen",
+  "version": "0.0.4",
+  "description": "Japanese withholding tax calculation function for javascript",
+  "main": "./dist/index.js",
   "scripts": {
+	"build": "tsc",
     "test": "jest",
     "teston": "jest --watchAll"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "tictaca <https://github.com/tictaca>",
+  "repository": {
+	  "type": "git",
+	  "url": "git+https://github.com/tictaca/gensen.git"
+  },
+  "files": [
+	  "dist",
+	  "types"
+  ],
+  "types": "./types/jpgensen/index.d.ts",
+  "license": "MIT",
   "devDependencies": {
     "@types/jest": "^26.0.24",
     "jest": "^27.0.6",
