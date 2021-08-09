@@ -1,6 +1,7 @@
 {
     "bottomAmount": 88000,
     "bottomRate": 3.063,
+	"amountForFuyouOver7": 1610,
     "condition": [
         {
             "from": 88000,

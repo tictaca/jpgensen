@@ -20,8 +20,13 @@ export default (props: Props): number => {
 		let amountBase = 0
 		let rate = null
 		let prevBoundary = null
+		let fuyouOver7TotalAmount = 0
+		let result = 0
 
 		if(kou){
+			if(fuyou > 7){
+				fuyouOver7TotalAmount = (fuyou - 7)*info.amountForFuyouOver7
+			}
 			const fuyouHandling = fuyou >= 7 ? 7 : fuyou
 			amountBase = matched.kou.amount[fuyouHandling]
 			rate = matched.kou.rate
@@ -38,10 +43,11 @@ export default (props: Props): number => {
 			}
 		}
 		if(!rate || !prevBoundary){
-			return amountBase
+			result =  amountBase - fuyouOver7TotalAmount
 		} else {
-			return amountBase + _calcWithRate(amount, prevBoundary, rate)
+			result =  amountBase + _calcWithRate(amount, prevBoundary, rate) - fuyouOver7TotalAmount
 		}
+		return result >= 0 ? result : 0
 	}
 }
 
