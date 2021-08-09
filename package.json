@@ -1,6 +1,6 @@
 {
   "name": "jpgensen",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Japanese withholding tax calculation function for javascript",
   "main": "./dist/index.js",
   "scripts": {
