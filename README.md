@@ -5,7 +5,7 @@ Function to calculate the amount of Japanese withholding tax
 給与所得の源泉徴収税額を計算する関数です。
 （現状は月額分のみ、月額表の甲欄を適用する給与等に対する税額の電算機計算の特例には未対応です）
 
-
+<br />
 
 ## install
 
@@ -13,7 +13,7 @@ Function to calculate the amount of Japanese withholding tax
 npm install --save jpgensen
 ```
 
-
+<br />
 
 ## Usage
 
@@ -39,7 +39,13 @@ jpgensen(settings)
 | kou    | boolean | 甲欄に該当するかどうか（true: 甲, false: 乙） |
 | fuyou  | number  | 扶養親族等の数                                |
 
+<br />
 
+## Demo
+
+https://jpgensendemo.gatsbyjs.io/
+
+<br />
 
 ## License
 
